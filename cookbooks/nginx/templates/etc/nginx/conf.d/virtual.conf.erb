@@ -1,0 +1,60 @@
+upstream unicorn_server {
+    server unix:/tmp/unicorn.sock
+    fail_timeout=0;
+}
+server {
+    listen 80;
+    server_name www.<%= node[:nginx][:hostname] %>;
+    rewrite ^ https://pushnate.com$request_uri? permanent;
+}
+server {
+    listen 80;
+    server_name <%= node[:nginx][:hostname] %>;
+    return 301 https://$host$request_uri;
+}
+server {
+    # Use SSL
+    listen 443 default ssl;
+    ssl on;
+    ssl_certificate      <%= node[:nginx][:ssl_key_dir] %>/pushnate_2015.pem;
+    ssl_certificate_key  <%= node[:nginx][:ssl_key_dir] %>/pushnate_2015.key;
+
+    client_max_body_size 4G;
+    server_name <%= node[:nginx][:hostname] %> www.<%= node[:nginx][:hostname] %>;
+
+    if ($http_host = www.<%= node[:nginx][:hostname] %>) {
+        rewrite  (.*)  https://<%= node[:nginx][:hostname] %>$1;
+    }
+
+    keepalive_timeout 5;
+
+    # Location of our static files
+    root <%= node[:nginx][:document_root] %>;
+
+    location ~ ^/assets/ {
+        root <%= node[:nginx][:document_root] %>;
+    }
+
+    location / {
+        <% if node[:nginx][:useBasicAuth] %>
+        # BASIC Auth
+        auth_basic "Restricted";
+        auth_basic_user_file /etc/nginx/.htpasswd;
+        <% end %>
+
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-FORWARDED_PROTO https;
+        proxy_redirect off;
+
+        if (!-f $request_filename) {
+            proxy_pass http://unicorn_server;
+            break;
+        }
+    }
+
+    error_page 500 502 503 504 /500.html;
+    location = /500.html {
+        root <%= node[:nginx][:document_root] %>;
+    }
+}

@@ -1,0 +1,89 @@
+#!/bin/sh
+
+# chkconfig: - 85 15
+# description: start/stop unicorn script.
+# processname: unicorn_app
+
+export PATH=/usr/local/rbenv/shims:/usr/local/rbenv/bin:$PATH
+export RBENV_ROOT=/home/<%= node[:server][:user] %>/.rbenv
+export RBENV_VERSION=<%= node[:rtn_rbenv][:global] %>
+export RAILS_ENV=<%= node[:env] %>
+ENVIROMENT=<%= node[:env] %>
+NAME=unicorn
+APP_ROOT_DIR="<%= node[:unicorn][:root] %>/current"
+CONF="<%= node[:unicorn][:root] %>/current/config/unicorn/<%= node[:env] %>.rb"
+PID="<%= node[:unicorn][:root] %>/shared/tmp/pids/unicorn.pid"
+USER=<%= node[:server][:user] %>
+
+start()
+{
+if [ -e $PID ]; then
+echo "$NAME already started";
+exit 1;
+fi
+echo "start $NAME";
+cd $APP_ROOT_DIR
+su -c "/home/<%= node[:server][:user] %>/.rbenv/bin/rbenv exec bundle exec unicorn -E $ENVIROMENT -c $CONF -D" $USER
+}
+
+stop()
+{
+if [ ! -e $PID ]; then
+echo "$NAME not started";
+exit 1;
+fi
+echo "stop $NAME";
+su -c "kill -QUIT `cat ${PID}`" $USER
+su -c "rm -f $PID" $USER
+}
+
+force_stop()
+{
+if [ ! -e $PID ]; then
+echo "$NAME not started";
+exit 1;
+fi
+echo "stop $NAME";
+su -c "kill -TERM `cat ${PID}`" $USER
+su -c "rm -f $PID" $USER
+}
+
+reload()
+{
+if [ ! -e $PID ]; then
+echo "$NAME not started";
+start
+exit 0;
+fi
+echo "reload $NAME";
+su -c "kill -HUP `cat ${PID}`" $USER
+}
+
+restart()
+{
+stop
+start
+}
+
+case "$1" in
+start)
+start
+;;
+stop)
+stop
+;;
+force-stop)
+force_stop
+;;
+reload)
+reload
+;;
+restart)
+restart
+;;
+*)
+echo "Syntax Error: release [start|stop|force-stop|reload|restart]"
+;;
+esac
+
+exit
