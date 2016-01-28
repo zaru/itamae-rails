@@ -5,10 +5,10 @@ remote_file "/etc/yum.repos.d/mongodb-org-2.6.repo" do
   source "./files/etc/yum.repos.d/mongodb-org-2.6.repo"
 end
 
-%w(mongodb-org mongodb-org-server mongodb-org-shell mongodb-org-mongos mongodb-org-tools).each do |pkg|
+%w(mongodb mongodb-server).each do |pkg|
   package pkg
 end
 
-service 'mongodb' do
+service 'mongod' do
   action [:enable, :start]
 end
