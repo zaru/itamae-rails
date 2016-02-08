@@ -18,6 +18,7 @@ autoconf
 automake
 libtool
 bison
-nodejs ).each do |pkg|
+nodejs
+curl-devel ).each do |pkg|
   package pkg
 end
