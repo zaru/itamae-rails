@@ -18,7 +18,11 @@ autoconf
 automake
 libtool
 bison
-nodejs
 curl-devel ).each do |pkg|
   package pkg
+end
+
+package "nodejs" do
+  options "--enablerepo=epel"
+  action :install
 end

@@ -4,7 +4,7 @@ server:
 rtn_rbenv:
   user: vagrant
   versions:
-    2.2.0:
+    2.3.0:
       -
         name: bundler
-  global: 2.2.0
+  global: 2.3.0
