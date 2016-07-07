@@ -2,7 +2,7 @@
 
 include_recipe "selinux::disabled"
 include_recipe "cookbooks/yum/default.rb"
-include_recipe "cookbooks/security/default.rb"
+include_recipe "cookbooks/iptables/default.rb"
 include_recipe "cookbooks/etc_packages/default.rb"
 include_recipe "cookbooks/ntp/default.rb"
 

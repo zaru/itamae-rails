@@ -1,0 +1,28 @@
+env: staging
+server:
+  user: ec2-user
+nginx:
+  hostname: stg.example.com
+  document_root: /var/www/stg.example.com
+  worker_num: 1
+  useBasicAuth: true
+
+rtn_rbenv:
+  user: ec2-user
+  versions:
+    2.3.0:
+      -
+        name: bundler
+  global: 2.3.0
+
+unicorn:
+  path: /usr/local/rbenv/shims:/usr/local/rbenv/bin:$PATH
+  rbenv_root: /home/ec2-user/.rbenv
+  ruby_ver: 2.3.0
+  env: staging
+  app_root: /var/www/stg.example.com
+  app_dir: /current
+  conf_dir: /current/config/unicorn/staging.rb
+  pid_dir: /shared/tmp/pids/unicorn.pid
+  user: ec2-user
+  log_rotate_interval: 12
