@@ -4,6 +4,7 @@
 # description: start/stop unicorn script.
 # processname: unicorn_app
 
+export LC_ALL="en_US.UTF-8"
 export PATH=/usr/local/rbenv/shims:/usr/local/rbenv/bin:$PATH
 export RBENV_ROOT=/home/<%= node[:server][:user] %>/.rbenv
 export RBENV_VERSION=<%= node[:rtn_rbenv][:global] %>
